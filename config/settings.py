@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "users",
     "bicycles",
     "api",
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL = '/media/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
