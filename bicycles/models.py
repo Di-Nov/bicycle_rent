@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+import uuid
+from django.utils.translation import gettext_lazy as _
 
 
 class AvailableBikeManager(models.Manager):
@@ -20,15 +22,14 @@ class Bike(models.Model):
         UNDER_RENOVATION = 'UR', 'Under renovation'
         DELETED = 'DE', 'Deleted'
 
-    brand = models.CharField(max_length=100, verbose_name="bike brand")
-    model = models.CharField(max_length=100, verbose_name="bike brand")
-    year_manufacture = models.IntegerField(verbose_name="year of manufacture")
+    brand = models.CharField(max_length=100, verbose_name=_("bike brand"))
+    model = models.CharField(max_length=100, verbose_name=_("bike model"))
+    year_manufacture = models.IntegerField(verbose_name=_("year of manufacture"))
     bike_status = models.CharField(choices=BikeStatus, max_length=2, default=BikeStatus.AVAILABLE,
-                                   verbose_name="Bike status", )
+                                   verbose_name=_("Bike status", ))
 
     objects = models.Manager()
     available = AvailableBikeManager()
-
 
     class Meta:
         ordering = ['bike_status', ]
@@ -47,15 +48,16 @@ class Order(models.Model):
         ACTIVE = 1, "Status active"
         INACTIVE = 0, "Status inactive"
 
-    id = models.BigIntegerField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.UUID, editable=False)
     order_user = models.OneToOneField(get_user_model(), models.DO_NOTHING, related_name='order',
-                                      verbose_name="Order user")
-    bike_id = models.OneToOneField(Bike, on_delete=models.CASCADE, related_name="order", verbose_name="Bike")
-    order_status = models.IntegerField(choices=OrderStatus, default=OrderStatus.ACTIVE, verbose_name="Order status")
-    time_start = models.DateTimeField(auto_now_add=True, verbose_name="time start")
-    time_rent = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(169)], verbose_name="Time rent")
-    price_hour = models.IntegerField(verbose_name="Price hour")
-    total_price = models.IntegerField(verbose_name="Total price")
+                                      verbose_name=_("Order user"))
+    bike_id = models.OneToOneField(Bike, on_delete=models.CASCADE, related_name="order", verbose_name=_("Bike"))
+    order_status = models.IntegerField(choices=OrderStatus, default=OrderStatus.ACTIVE, verbose_name=_("Order status"))
+    time_start = models.DateTimeField(auto_now_add=True, verbose_name=_("time start"))
+    time_rent = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(169)],
+                                    verbose_name=_("Time rent"))
+    price_hour = models.IntegerField(verbose_name=_("Price hour"))
+    total_price = models.IntegerField(verbose_name=_("Total price"))
 
     objects = models.Manager()
     active = ActiveOrderManager()
@@ -66,7 +68,7 @@ class Order(models.Model):
         verbose_name_plural = 'Orders'
 
     def __str__(self):
-        return f"Order number {self.id}, bike: {self.bike_id.name} for {self.order_user.name}"
+        return f"bike: {self.bike_id.name} for {self.order_user}"
 
     def get_absolute_url(self):
         pass
